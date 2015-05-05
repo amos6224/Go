@@ -1,0 +1,2 @@
+me dd-agent -h `hostname` -v /var/run/docker.sock:/var/run/docker.sock -v /proc/mounts:/host/proc/mounts:ro -v /sys/fs/cgroup/:/host/sys/fs/cgroup:ro -e API_KEY=143f0fe9daa0b3ac87cdaf041f30e9c5 datadog/docker-dd-agent
+docker run -d --privileged --name dd-agent -h `hostname` -v /var/run/docker.sock:/var/run/docker.sock -v /proc/mounts:/host/proc/mounts:ro -v /sys/fs/cgroup/:/host/sys/fs/cgroup:ro -e API_KEY=143f0fe9daa0b3ac87cdaf041f30e9c5 datadog/docker-dd-agent1
