@@ -1,0 +1,56 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    - region: us-east-1
+    - vpc_id: vpc-fbd4499e
+    - vpc_subnet: subnet-5ef60d75
+    - key_name: contently-vpc
+    - office_ip: 104.36.1.10/32
+    - cidr_ip: 10.0.160.103/32
+  tasks:
+    - name: ES cluster
+      ec2_group:
+        name: ES_ClUSTER-STAGING
+        description: elasticsearch nginx client staging
+        vpc_id: "{{ vpc_id }}"
+        rules:
+          - proto: tcp
+            from_port: 22
+            to_port: 22
+            cidr_ip: "{{ cidr_ip }}"
+          - proto: tcp
+            from_port: 9200
+            to_port: 9200
+            cidr_ip: 0.0.0.0/0
+          - proto: tcp
+            from_port: 9300
+            to_port: 9300
+            cidr_ip: 0.0.0.0/0
+        region: "{{ region }}"
+
+    - name: ES Nginx
+      ec2_group:
+        name: ES_NGINX_STAGING
+        description: es nginx staging
+        vpc_id: "{{ vpc_id }}"
+        rules:
+          - proto: tcp
+            from_port: 22
+            to_port: 22
+            cidr_ip: "{{ office_ip }}"
+          - proto: tcp
+            from_port: 80
+            to_port: 80
+            cidr_ip: "{{ office_ip }}"
+          - proto: tcp
+            from_port: 9300
+            to_port: 9300
+            cidr_ip: "{{ office_ip }}"
+          - proto: tcp
+            from_port: 9200
+            to_port: 9200
+            cidr_ip: "{{ office_ip }}"
+        region: us-east-1
+

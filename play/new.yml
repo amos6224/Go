@@ -1,0 +1,8 @@
+- hosts: es
+  user: ubuntu
+  sudo: yes
+  vars_files:
+    #  - vars/elasticsearch.yml
+    - vars/newrelic.yml
+  roles:
+    - new-relic

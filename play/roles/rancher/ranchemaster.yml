@@ -1,0 +1,38 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: false
+  vars_files:
+    - ./vars/rancher.yml
+  tasks:
+    - name: master security group
+      ec2_group:
+        name: Rancher
+        description: Rancher Security Master
+        region: "{{ region }}"
+        rules:
+          - proto: tcp
+            from_port: 22
+            to_port: 22
+            cidr_ip: "{{ allowed_ip }}"
+          - proto: tcp
+            from_port: 8080
+            to_port: 8080
+            cidr_ip: 0.0.0.0/0
+
+    - ec2:
+        region: "{{region}}"
+        key_name: "{{key_name}}"
+        instance_type: t2.micro
+        image: "{{image}}"
+        wait: yes
+        count: 1
+        vpc_subnet_id: subnet-73056604
+        assign_public_ip: yes
+        user_data: "{{ lookup('template', './templates/master.j2')}}"
+      register: master
+    - debug: msg='master ip is {{item.public_ip}}'
+      with_items: master.instances
+    - name: add instance to hostgroup
+      add_host: hostname={{ item.public_ip }} groupname=ranche-master
+      with_items: master.instances

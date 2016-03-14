@@ -1,0 +1,55 @@
+---
+- name: update cache
+  apt: update_cache=yes cache_valid_time=86400
+
+- name: install system packages
+  apt: name={{ item }}
+  with_items:
+    - unzip
+    - dnsmasq
+    - htop
+
+- name: Download Consul
+  get_url:
+    url: https://dl.bintray.com/mitchellh/consul/0.5.2_linux_amd64.zip
+    dest: /tmp/consul.zip
+
+- name: Download Consul Web UI
+  get_url:
+    url: https://dl.bintray.com/mitchellh/consul/0.5.2_web_ui.zip
+    dest: /tmp/consul-ui.zip
+
+- name: Extract Consul
+  command: unzip -n -d /bin /tmp/consul.zip creates=/bin/consul
+
+- name: Extract Consul-UI
+  command: unzip -n -d /var/consul/ui /tmp/consul-ui.zip creates=/etc/consul.d/
+
+- name: create consul user
+  user: name=consul comment="consul discovery"
+
+- name: create directory
+  file: path=/etc/consul.d state=directory
+
+- name: create subdirectory
+  file: path=/etc/consul.d/bootstrap state=directory
+  file: path=/etc/consul.d/server state=directory mode=755
+  file: path=/etc/consul.d/client state=directory mode=755
+
+- name: consul data dir
+  file: path=/var/consul state=directory
+  file: path=/var/consul/data state=directory mode=755
+
+- name: create consul config
+  template: src=consul.json.j2 dest=/etc/consul.d/consul.json
+
+- name: Install consul-server upstart config
+  copy: src=consul.conf dest=/etc/init/consul.conf
+
+- name: Enable consul-server service
+  service: name=consul-server enabled=yes state=started
+
+- name: Configure Dnsmasq
+  copy: content='server=consul/127.0.0.1' dest=/etc/dnsmasq.d/10-consul
+  notify:
+    - restart dnsmasq

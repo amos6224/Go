@@ -1,0 +1,12 @@
+[Unit]
+Description=Namely nginx service
+After=docker.service
+
+[Service]
+Restart=always
+ExecStartPre=/usr/bin/docker kill nginx
+ExecStartPre=/usr/bin/docker rm nginx
+ExecStart=/usr/bin/docker run --name nginx dockerfile/nginx -link wiki:namely_wiki -link releases:releases_wiki
+
+[Install]
+WantedBy=multi-user.target

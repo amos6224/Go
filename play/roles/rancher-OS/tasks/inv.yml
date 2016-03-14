@@ -1,0 +1,3 @@
+- name: create inventory
+  template: src=inventory.j2 dest=./inventory
+  tags: inventory

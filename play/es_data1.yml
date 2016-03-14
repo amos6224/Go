@@ -1,0 +1,7 @@
+---
+- hosts: es_data
+  sudo: true
+  user: ubuntu
+  tasks:
+    - name: mount filesystem to data volume
+      mount: name=/data src=/dev/xvdb fstype=ext4 state=present

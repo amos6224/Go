@@ -1,0 +1,46 @@
+- hosts: localhost
+  connection: local
+  gather_facts: yes
+  vars_files:
+    - vars/common.yml
+    - vars/mongo.yml
+  tasks:
+    - name: VPC SECURITY FOR MongoDB
+      ec2_group:
+        name: Mongodb
+        description: MongoBD New VPC Group
+        vpc_id: "{{ vpc_id }}"
+        region: "{{ region }}"
+        rules:
+          - proto: tcp
+            from_port: 22
+            to_port: 22
+            cidr_ip: "{{ office_ip }}"
+          - proto: tcp
+            from_port: 27017
+            to_port: 27017
+            cidr_ip: "{{ vpc_net }}"
+    - name: Setup Server
+      ec2:
+        region: "{{ region }}"
+        key_name: "{{ keyname }}"
+        instance_type: "{{ instance_type }}"
+        image: "{{ image }}"
+        wait: yes
+        group: Mongodb
+        exact_count: 2
+        instance_tags:
+          Name: MongoDB
+          App: insights
+          Component: mongo
+          Env: staging
+          Application: Database
+          Environment: Stage
+        count_tag:
+          Name: MongoDB
+          Environment: Stage
+        volumes:
+          - device_name: /dev/xvdb
+            volume_size: 100
+        vpc_subnet_id: "{{ subnet_id }}"
+      register: ec2

@@ -1,0 +1,32 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: yes
+  vars_files:
+    - vars/ES.yml
+  tasks:
+    - name: Elastic Search Servers
+      ec2:
+        key_name: "{{ keyname }}"
+        group_id: "{{ security_group }}"
+        instance_type: r3.xlarge
+        image: "{{ image }}"
+        wait: true
+        region: "{{ region }}"
+        count: 1
+        instance_tags:
+          Name: ElasticData
+          env: QA
+        volumes:
+          - device_name: /dev/sdb
+            volume_size: 200
+        vpc_subnet_id: "{{ subnet_ids}}"
+      register: ec2
+    - name: Add new hosts to host group
+      add_host: hostname={{ item.public_ip }} groupname=ES
+      with_items: ec2.instances
+    - name: wait for ssh to come up
+      wait_for: host={{ item.public_dns_name }} port=22 delay=60 timeout=320 state=started
+      with_items: ec2.instances
+
+

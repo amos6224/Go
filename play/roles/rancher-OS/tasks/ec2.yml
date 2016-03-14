@@ -1,0 +1,36 @@
+---
+- name: start rancher server
+  ec2:
+    region: "{{ region }}"
+    image: "{{ image }}"
+    instance_type: "{{ instance_type }}"
+    key_name: "{{ keyname }}"
+    vpc_subnet_id: subnet-dc269885
+    user_data: "{{ lookup('template', '../templates/master.j2') }}"
+    wait: yes
+  register: master
+
+- debug: msg='rancher master IP is {{ item.public_ip }}'
+  with_items: master.instances
+
+- name: Add new instance to host group
+  add_host: hostname={{ item.public_ip }} groupname=master
+  with_items: master.instances
+
+- name: Start rancher workers
+  ec2:
+    region: "{{ region }}"
+    image: "{{ image }}"
+    instance_type: "{{ instance_type }}"
+    key_name: "{{ keyname }}"
+    vpc_subnet_id: subnet-dc269885
+    count: 2
+    wait: yes
+  register: workers
+
+- name: Add new instance to host group
+  add_host: hostname={{ item.public_ip }} groupname=worker
+  with_items: workers.instances
+
+
+

@@ -1,0 +1,18 @@
+- name: install nginx
+  apt: pkg={{ item }} state=present
+  with_items:
+    - nginx
+    - apache-utils
+  notify:
+    - restart nginx
+
+- name: import the elasticsearch site
+  template: src=elasticsearch.j2 dest=/etc/nginx/sites-available/elasticsearch
+  notify:
+    - reload nginx
+
+- name: set the symlink
+  shell: >
+        sudo ln -s /etc/nginx/sites-available/elasticsearch /etc/nginx/sites-enabled/elasticsearch
+  notify:
+    - restart nginx

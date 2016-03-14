@@ -1,0 +1,103 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: false
+  vars_files:
+    - vars/ES.yml
+  tasks:
+    - name: CoreOS-ELB
+      ec2_group:
+        name: coreos-elb
+        description: Security group for coreos Load Balancer
+        vpc_id: "{{ vpc_id }}"
+        rules:
+          - proto: tcp
+            from_port: 80
+            to_port: 80
+            cidr_ip: 0.0.0.0/0
+          - proto: tcp
+            from_port: 443
+            to_port: 443
+            cidr_ip: 0.0.0.0/0
+        region: "{{ region }}"
+
+    - name: CoreOS-Sec
+      ec2_group:
+        name: coreos-sec
+        description: security group for coreos server
+        vpc_id: "{{ vpc_id }}"
+        rules:
+          - proto: tcp
+            from_port: 2375
+            to_port: 2375
+            group_name: coreos-sec
+          - proto: tcp
+            from_port: 22
+            to_port: 22
+            cidr_ip: "{{ office_ip }}"
+          - proto: tcp
+            from_port: 8080
+            to_port: 8080
+            cidr_ip: "{{ office_ip }}"
+          - proto: tcp
+            from_port: 80
+            to_port: 80
+            cidr_ip: "{{ office_ip }}"
+          - proto: tcp
+            from_port: 9300
+            to_port: 9300
+            group_name: coreos-sec
+          - proto: tcp
+            from_port: 9300
+            to_port: 9300
+            cidr_ip: "{{ office_ip }}"
+          - proto: tcp
+            from_port: 8080
+            to_port: 8080
+            group_name: coreos-sec
+          - proto: tcp
+            from_port: 80
+            to_port: 80
+            group_name: coreos-sec
+          - proto: tcp
+            from_port: 9200
+            to_port: 9200
+            group_name: coreos-sec
+          - proto: tcp
+            from_port: 9200
+            to_port: 9200
+            cidr_ip: "{{ office_ip }}"
+          - proto: tcp
+            from_port: 5732
+            to_port: 5732
+            group_name: coreos-sec
+          - proto: tcp
+            from_port: 2375
+            to_port: 2375
+            cidr_ip: "{{ office_ip }}"
+          - proto: tcp
+            from_port: 5732
+            to_port: 5732
+            cidr_ip: "{{ office_ip }}"
+        region: "{{ region }}"
+
+    - name: Launch the clusters
+      ec2:
+        region: "{{ region }}"
+        key_name: "{{ keyname }}"
+        instance_type: m3.large
+        image: ami-f396fa96
+        wait: yes
+        group: coreos-sec
+        exact_count: 1
+        instance_tags:
+          Name: Docker Manager
+          Application: Docker
+          Environment: Prod
+        count_tag:
+          Name: Docker Manager
+          Environment: Production
+        user_data: "{{ lookup('template', './cadvisor-master.j2') }}"
+        assign_public_ip: yes
+        vpc_subnet_id: "{{ subnet_id }}"
+

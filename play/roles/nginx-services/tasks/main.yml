@@ -1,0 +1,32 @@
+- name: Create nginx log folder
+  file: path=/var/log/nginx owner=root state=directory
+  tags: nginx
+- name: Create nginx certs folder
+  file: path=/etc/nginx/certs owner=root state=directory
+  tags: nginx
+- name: Create nginx sites folder
+  file: path=/etc/nginx/sites-enabled owner=root state=directory
+  tags: nginx
+- name: Pull nginx image
+  command: docker pull nginx
+  tags: nginx
+- name: Kill nginx
+  docker:
+    image: nginx
+    name: nginx
+    state: absent
+  tags: nginx
+- name: Run nginx
+  docker:
+      image: nginx
+      detach: True
+      ports: 80:80
+      state: running
+      name: nginx
+      links: "wiki,releases,dronemetrics,import,phonecenter"
+      volumes:
+        - /etc/nginx/sites-enabled:/etc/nginx/conf.d
+        - /etc/nginx/certs:/etc/nginx/certs
+        - /var/log/nginx:/var/log/nginx
+  tags: nginx
+

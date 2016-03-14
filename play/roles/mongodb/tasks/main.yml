@@ -1,0 +1,4 @@
+---
+- include: mongodb.yml
+  tags: [mongodb]
+

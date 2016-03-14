@@ -1,0 +1,5 @@
+- name: Restart nginx
+  docker:
+      image: dockerfile/nginx
+      name: nginx
+      state: restarted

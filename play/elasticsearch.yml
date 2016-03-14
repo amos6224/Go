@@ -1,0 +1,22 @@
+---
+- hosts: es-staging-data
+  user: ubuntu
+  sudo: yes
+  vars_files:
+    - vars/elasticsearch.yml
+      # vars/newrelic.yml
+  roles:
+    - elasticsearch
+  tags:
+    - elasticsearch
+  tags: new-relic
+  #  tasks:
+  #    - name: update cache
+  #      apt: update_cache=yes
+  #    - name: set hostname"
+  #      set_fact: es1={{ new_hostname }}
+  #      when: "'es' in new_hostname"
+  #    - name: "set host"
+  #      set_fact: es2={{ inventory_hostname }}
+  #      when: "'es' in new_hostname"
+  #

@@ -1,0 +1,19 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    region: us-east-1
+    instance_ids:
+      - i-e0ff3e40
+      - i-e1ff3e41
+      - i-e4ff3e44
+      - i-e6ff3e46
+      - i-e7ff3e47
+      - i-96f73636
+  tasks:
+    - name: Template to delete ec2
+      ec2:
+        state: absent
+        instance_ids: "{{ instance_ids}} "
+        region: "{{ region }}"

@@ -1,0 +1,10 @@
+---
+- include_vars: Ubuntu.yml
+- name: Add APT key
+  apt_key: keyserver=keyserver.ubuntu.net id=7F0CEB10
+
+- name: Add APT repository
+  apt_repository: repo='deb http://downloads-distro.mongodb.org/repo/ubuntu-upstart dist 10gen' update_cache=yes
+
+- name: Install MongoDB package
+  apt: pkg=mongodb state=present

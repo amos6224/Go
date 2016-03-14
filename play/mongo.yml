@@ -1,0 +1,6 @@
+---
+- hosts: mongodb
+  user: ubuntu
+  sudo: true
+  roles:
+    - mongodb

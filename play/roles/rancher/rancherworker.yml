@@ -1,0 +1,48 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: false
+  vars_files:
+    - ./vars/rancher.yml
+  tasks:
+    #- name: group for worker
+    #  ec2_group:
+    #    name: worker
+    #    description: security for the workers
+    #    vpc_id: vpc-95f629f0
+    #    rules:
+    #      - proto: tcp
+    #        from_port: 22
+    #        to_port: 22
+    #        cidr_ip: "{{allowed_ip}}"
+    #      - proto: tcp
+    #        from_port: 9345
+    #        to_port: 9346
+    #        cidr_ip: 0.0.0.0/0
+    #      - proto: udp
+    #        from_port: 500
+    #        to_port: 500
+    #        cidr_ip: 0.0.0.0/0
+    #      - proto: udp
+    #        from_port: 4500
+    #        to_port: 4500
+    #        cidr_ip: 0.0.0.0/0
+    #    region: "{{region}}"
+
+
+    - name: launch the worker
+      ec2:
+         region: "{{ region }}"
+         key_name: "{{key_name}}"
+         image: "{{image}}"
+         instance_type: m3.medium
+         group: worker
+         count: "{{ instance_count | default(3)}}"
+         wait: yes
+         vpc_subnet_id: subnet-73056604
+         assign_public_ip: yes
+         user_data: "{{ lookup('template', './templates/worker.j2')}}"
+      register: worker
+    - name: add instances to group
+      add_host: hostname="{{item.public_ip}}" groupname=worker
+      with_items: ec2.instances

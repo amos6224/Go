@@ -1,0 +1,101 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: false
+  vars_files:
+    - vars/ES.yml
+  tasks:
+    - name: Consul-ELB
+      ec2_group:
+        name: consul-elb
+        description: security group for load balancer
+        vpc_id: "{{ vpc_id }}"
+        rules:
+          - proto: tcp
+            from_port: 80
+            to_port: 80
+            cidr_ip: 0.0.0.0/0
+          - proto: tcp
+            from_port: 443
+            to_port: 443
+            cidr_ip: 0.0.0.0/0
+        region: "{{ region }}"
+
+    - name: Consul-Sec
+      ec2_group:
+        name: consul-sec
+        description: security group for consul
+        vpc_id: "{{ vpc_id }}"
+        rules:
+          - proto: tcp
+            from_port: 22
+            to_port: 22
+            cidr_ip: "{{ office_ip }}"
+          - proto: tcp
+            from_port: 53
+            to_port: 53
+            cidr_ip: 0.0.0.0/0
+          - proto: tcp
+            from_port: 80
+            to_port: 80
+            cidr_ip: 0.0.0.0/0
+          - proto: tcp
+            from_port: 443
+            to_port: 443
+            cidr_ip: 0.0.0.0/0
+          - proto: tcp
+            from_port: 8400
+            to_port: 8400
+            group_name: consul-sec
+          - proto: tcp
+            from_port: 8500
+            to_port: 8500
+            cidr_ip: "{{ office_ip }}"
+          - proto: tcp
+            from_port: 8600
+            to_port: 8600
+            group_name: consul-sec
+          - proto: tcp
+            from_port: 8300
+            to_port: 8302
+            group_name: consul-sec
+          - proto: udp
+            from_port: 8300
+            to_port: 8302
+            group_name: consul-sec
+          - proto: udp
+            from_port: 53
+            to_port: 53
+            group_name: consul-sec
+          - proto: udp
+            from_port: 8400
+            to_port: 8400
+            group_name: consul-sec
+          - proto: udp
+            from_port: 8500
+            to_port: 8500
+            group_name: consul-sec
+          - proto: udp
+            from_port: 8600
+            to_port: 8600
+            group_name: consul-sec
+        region: "{{ region }}"
+
+    - name: clusters of ubuntu
+      ec2:
+        region: "{{ region }}"
+        key_name: "{{ keyname }}"
+        instance_type: t2.micro
+        image: "{{ image }}"
+        wait: yes
+        group: consul-sec
+        exact_count: 5
+        instance_tags:
+          Name: Service Discovery
+          Application: Consul
+          Environment: Prod
+        count_tag:
+          Name: Service Discovery
+          Environment: Production
+        vpc_subnet_id: "{{ subnet_id }}"
+        assign_public_ip: yes

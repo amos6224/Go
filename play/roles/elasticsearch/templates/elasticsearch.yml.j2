@@ -1,0 +1,139 @@
+#ol.index.type' => 'fixed',
+
+#     'threadpool.index.size' => '2'
+
+#     // ...
+
+
+
+################################### Cluster ###################################
+
+
+
+cluster.name: contently-es-cluster
+
+
+
+#################################### Node #####################################
+
+
+
+node.name: node-client
+
+node.max_local_storage_nodes: 1
+
+
+
+#################################### Index ####################################
+
+
+
+index.mapper.dynamic: true
+
+action.auto_create_index: true
+
+action.disable_delete_all_indices: true
+
+node.master: false
+
+node.data: false
+
+
+
+#################################### Paths ####################################
+
+
+
+path.conf: /etc/elasticsearch
+
+#path.data: /usr/local/var/data/elasticsearch
+
+#path.logs: /usr/local/var/log/elasticsearch
+
+
+
+#################################### Plugin ###################################
+
+
+
+plugin.mandatory: cloud-aws
+
+
+
+################################### Memory ####################################
+
+
+
+bootstrap.mlockall: true
+
+
+
+############################## Network And HTTP ###############################
+
+
+
+http.port: 9200
+
+
+
+################################### Gateway ###################################
+
+
+
+gateway.expected_nodes: 5
+
+
+
+############################# Recovery Throttling #############################
+
+
+
+
+
+################################## Discovery ##################################
+
+
+
+discovery.type: ec2
+
+
+
+discovery.zen.minimum_master_nodes: 1
+
+discovery.zen.ping.multicast.enabled: true
+
+
+
+cloud.node.auto_attributes: true
+
+cloud.aws.access_key: {{ aws_access_key }}
+
+cloud.aws.secret_key: {{ aws_secret_key }}
+discovery.ec2.groups: Elastic-Cluster
+
+discovery.ec2.availability_zones: "us-east-1a"
+
+################################## Slow Log ###################################
+
+
+
+
+
+################################## GC Logging #################################
+
+
+
+
+
+################################## JMX ########################################
+
+
+
+
+
+################################## Custom #####################################
+
+
+
+script.disable_dynamic: false
+#network.host: localhost

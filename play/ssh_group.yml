@@ -1,0 +1,17 @@
+- hosts: localhost
+  connection: local
+  gather_facts: yes
+  vars_files:
+    - vars/ssh.yml
+  tasks:
+    - name: ssh for VPC
+      ec2_group:
+        name: ssh for vpc
+        description: ssh VPC
+        vpc_id: "{{ vpc_id }}"
+        region: "{{ region }}"
+        rules:
+          - proto: tcp
+            from_port: 22
+            to_port: 22
+            cidr_ip: "{{ cidr_ip }}"

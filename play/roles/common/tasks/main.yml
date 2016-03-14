@@ -1,0 +1,12 @@
+- name: install default packages
+  sudo: yes
+  apt: pkg={{ item }} state=installed update_cache=yes
+  tags: basicpackages
+  with_items:
+  - htop
+  - curl
+  - unzip
+  - libcurl3
+  - build-essential
+  - git
+  - unattended-upgrades

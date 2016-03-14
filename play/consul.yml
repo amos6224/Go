@@ -1,0 +1,22 @@
+---
+- hosts: consul
+  user: ubuntu
+  sudo: true
+  vars_files:
+    - vars/consul.yml
+  roles:
+    - consul
+
+  tasks:
+    - name: update cache
+      apt: update_cache=yes cache_valid_time=86400
+
+    - name: upgrade distro
+      apt: upgrade=dist
+
+    - name: get ec2 facts
+      action: ec2_facts
+
+    - name: set The hostname
+      hostname: name=consul-server-{{ ansible_ec2_local_ipv4|replace('.','-')}}
+

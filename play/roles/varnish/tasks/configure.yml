@@ -1,0 +1,26 @@
+---
+- name: Create configuration directories
+  sudo: yes
+  file:
+    dest: "{{item}}"
+    state: directory
+  with_items:
+    - "{{varnish_vcl_dir}}"
+  tags:
+    - conf
+    - varnish
+    - http-cache
+
+- name: Configure Varnish
+  sudo: yes
+  template:
+    src: varnish.conf
+    dest: "{{varnish_conf_file}}"
+  notify: restart varnish
+  tags:
+    - conf
+    - varnish
+    - http-cache
+
+- include: vcl.yml
+  name: default

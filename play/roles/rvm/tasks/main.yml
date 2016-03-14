@@ -1,0 +1,16 @@
+---
+- name: get gpg keys
+  shell: command curl -sSL https://rvm.io/mpapis.asc | sudo gpg --import -
+
+- name: install rvm
+  shell: curl -L get.rvm.io | sudo bash -s stable
+
+- name: install ruby
+  shell: >
+    executable=/bin/bash source /etc/profile.d/rvm.sh;
+    rvm install 2.1.0
+
+- name: set ruby version default
+  shell: >
+    executable=/bin/bash source /etc/profile.d/rvm.sh
+    rvm --default use 2.1.0

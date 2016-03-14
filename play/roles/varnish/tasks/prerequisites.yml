@@ -1,0 +1,9 @@
+---
+- name: Prerequisites for provisioning
+  sudo: yes
+  apt:
+    name: python-pycurl
+  tags:
+    - deps
+    - varnish
+    - http-cache

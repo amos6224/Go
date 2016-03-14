@@ -1,0 +1,10 @@
+{
+    "bootstrap": true,
+    "server": true,
+    "enable_syslog": true,
+    "data_dir": "{{ consul_data_dir }}",
+    "ui_dir": "{{ consul_ui_dir }}",
+    "start_join": [],
+    "datacenter": "{{ ansible_ec2_placement_region }}",
+    "encrypt": "{{ encrypt }}"
+}

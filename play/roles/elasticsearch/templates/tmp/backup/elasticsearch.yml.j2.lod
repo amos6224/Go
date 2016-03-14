@@ -1,0 +1,168 @@
+# This file is managed by Ansible, do not edit manually, your changes *will* be overwritten!
+
+#
+
+# Please see the source file for context and more information:
+
+#
+
+# https://github.com/elasticsearch/elasticsearch/blob/master/config/elasticsearch.yml
+
+#
+
+# To set configurations not exposed by this template, set the
+
+# `node.elasticsearch[:custom_config]` attribute in your node configuration,
+
+# `elasticsearch/settings` data bag, role/environment definition, etc:
+
+#
+
+#     // ...
+
+#     'threadpool.index.type' => 'fixed',
+
+#     'threadpool.index.size' => '2'
+
+#     // ...
+
+
+
+################################### Cluster ###################################
+
+
+
+cluster.name: insights_cluster_1
+
+
+
+#################################### Node #####################################
+
+
+
+node.name: insights-cluster-master-2
+
+node.max_local_storage_nodes: 1
+
+
+
+#################################### Index ####################################
+
+
+
+index.mapper.dynamic: true
+
+action.auto_create_index: true
+
+action.disable_delete_all_indices: true
+
+node.master: true
+
+node.data: false
+
+
+
+#################################### Paths ####################################
+
+
+
+#path.conf: /usr/local/etc/elasticsearch
+
+path.data: /data/elasticsearch
+
+path.logs: /var/log/elasticsearch
+
+discovery.zen.ping.multicast.enabled: false
+
+network.publish_host: "16.0.16.156"
+
+
+#################################### Plugin ###################################
+
+
+
+plugin.mandatory: cloud-aws
+
+
+
+################################### Memory ####################################
+
+
+
+bootstrap.mlockall: true
+
+
+
+############################## Network And HTTP ###############################
+
+
+
+http.port: 9200
+
+
+
+################################### Gateway ###################################
+
+
+
+gateway.expected_nodes: 1
+
+
+
+############################# Recovery Throttling #############################
+
+
+
+
+
+################################## Discovery ##################################
+
+
+
+discovery.type: ec2
+
+cloud.aws.region: us-east
+
+discovery.zen.minimum_master_nodes: 2
+
+discovery.zen.ping.multicast.enabled: true
+
+
+
+cloud.node.auto_attributes: true
+
+cloud.aws.access_key: AKIAIVPGSDGSGY363IGQ
+
+cloud.aws.secret_key: 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
+
+discovery.ec2.groups: Elastic-Cluster
+
+discovery.ec2.host_type: private_ip
+
+discovery.ec2.ping_timeout: 5s
+
+
+
+################################## Slow Log ###################################
+
+
+
+
+
+################################## GC Logging #################################
+
+
+
+
+
+################################## JMX ########################################
+
+
+
+
+
+################################## Custom #####################################
+
+
+
+script.disable_dynamic: false

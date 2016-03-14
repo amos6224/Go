@@ -1,0 +1,6 @@
+---
+- name: Install Head Plugin
+  shell: >
+    bin/plugin -install mobz/elasticsearch-head
+    chdir={{ elasticsearch_home_dir }}
+  ignore_errors: yes

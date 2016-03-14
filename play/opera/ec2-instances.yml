@@ -1,0 +1,54 @@
+- name: Keep EC2 infrastructure up (needs some mods to run as a scheduled job?)
+  hosts: localhost
+  connection: local
+  gather_facts: False
+  vars:
+    instance_size: "t2.small"
+  vars_files:
+    - ../vars/Opera.yml
+  tasks:
+    - ec2:
+        region: '{{ region }}'
+        key_name: jeffs
+        instance_type: "{{ instance_size }}"
+        image: ami-323b195a
+        wait: yes
+        group: Opera
+        exact_count: "{{ instance_count | default(3) }}"
+        instance_tags:
+          Name: Opera
+          Application: Opera
+          Environment: Production
+          Size: "{{ instance_size }}"
+        count_tag:
+          Size: "{{ instance_size }}"
+          Application: Opera
+        vpc_subnet_id: subnet-73056604
+        user_data: "{{ lookup('template', '../templates/opera-cloud-config.j2') }}"
+        assign_public_ip: yes
+        volumes:
+          - device_name: /dev/xvda
+            device_type: gp2
+            volume_size: 100
+            delete_on_termination: true
+
+    - name: Get instance IDs
+      shell: ../plugins/parsers/elb_registrar.py {{ tag_name }}
+      register: elb_ids
+
+    - name: join instance to ELB
+      ec2_elb:
+        instance_id: "{{ item }}"
+        ec2_elbs: "{{ tag_name }}"
+        state: present
+        region: us-east-1
+      with_items:
+        - "{{ elb_ids.stdout_lines }}"
+
+#    - name: slack notify of a new instance
+#      slack:
+#        token="{{ token_slack}}"
+#        room=Devops
+#        msg="New instance has been created"
+#        color=green
+#

@@ -1,0 +1,29 @@
+[es]
+52.2.161.82 ansible_ssh_user=ubuntu ansible_ssh_port=22 new_hostname=es1
+52.22.29.23 ansible_ssh_user=ubuntu ansible_ssh_port=22 new_hostname=es2
+[es_data]
+52.0.59.1 ansible_ssh_user=ubuntu ansible_ssh_port=22 hostname=ElasticData1
+52.20.45.88 ansible_ssh_user=ubuntu ansible_ssh_port=22 hostname=ElasticData2
+[nginx]
+52.21.174.193 ansible_ssh_user=ubuntu ansible_ssh_port=22 hostname=nginx
+[es2]
+54.210.55.254 ansible_ssh_user=ubuntu ansible_ssh_port=22 hostname=es3
+54.209.58.85 ansbile_ssh_user=ubuntu ansbile_ssh_port=22 hostname=es4
+[consul]
+52.23.247.136 ansible_ssh_user=ubuntu ansible_ssh_port=22 hostname=consul-server
+54.84.27.44 ansible_ssh_user=ubuntu ansible_ssh_port=22 hostname=consul-member1
+52.23.247.131 ansible_ssh_user=ubuntu ansible_ssh_port=22 hostname=consul-member2
+52.23.254.231 ansible_ssh_user=ubuntu ansible_ssh_port=22 hostname=consul-member3
+52.23.251.82 ansible_ssh_user=ubuntu ansible_ssh_port=22 hostname=consul-member4
+[es-qa]
+16.0.176.8 ansible_ssh_user=ubuntu ansible_ssh_port=22
+[es-data]
+16.0.176.13 ansible_ssh_user=ubuntu ansible_ssh_port=22
+[es-staging]
+16.0.129.98 ansible_ssh_user=ubuntu ansible_ssh_port=22
+[es-staging-data]
+16.0.128.202 ansible_ssh_user=ubuntu ansible_ssh_port=22
+[nginx-staging]
+52.91.172.38 ansible_ssh_user=ubuntu ansible_ssh_port=22
+[mongodb]
+52.3.208.136 ansible_ssh_user=ubuntu ansible_ssh_port=22

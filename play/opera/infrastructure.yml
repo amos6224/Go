@@ -1,0 +1,136 @@
+- name: Setup Opera infrastructure
+  hosts: localhost
+  connection: local
+  gather_facts: False
+  vars_files:
+   -  ../vars/Opera.yml
+  tasks:
+    - name: Contently-ELB
+      ec2_group:
+        name: Contently-ELB
+        description: security group for load balancer
+        vpc_id: vpc-
+        rules:
+          - proto: tcp
+            from_port: 80
+            to_port: 80
+            cidr_ip: 104.36.1.10/32
+          - proto: tcp
+            from_port: 443
+            to_port: 443
+            cidr_ip: 104.36.1.10/32
+        region: "{{ region }}"
+
+    - name: Opera-Master
+      ec2_group:
+        name: Opera-Master
+        description: security group for container running infrastucture
+        vpc_id: vpc-
+        rules:
+          - proto: tcp
+            from_port: 22
+            to_port: 22
+            cidr_ip: 104.36.1.10/32
+          - proto: tcp
+            from_port: 5732
+            to_port: 5732
+            cidr_ip: 104.36.1.10/32
+          - proto: tcp
+            from_port: 5732
+            to_port: 5732
+            group_name: tower-app
+        region: "{{ region }}"
+      tags: towerapp
+
+    - name: Opera
+      ec2_group:
+        name: Opera
+        description: security group for container running infrastucture
+        vpc_id: vpc-
+        rules:
+          - proto: tcp
+            from_port: 22
+            to_port: 22
+            cidr_ip: /32
+          - proto: tcp
+            from_port: 2375
+            to_port: 2375
+            cidr_ip: /32
+          - proto: tcp
+            from_port: 80
+            to_port: 80
+            group_name: Opera-ELB
+          - proto: tcp
+            from_port: 2375
+            to_port: 2375
+            group_name: tower-app
+          - proto: tcp
+            from_port: 2375
+            to_port: 2375
+            group_name: Opera-Master
+          - proto: tcp
+            from_port: 3000
+            to_port: 64000
+            group_name: Opera
+        region: "{{ region }}"
+
+    - name: Tower to Opera-rds
+      ec2_group:
+        name: Opera-rds
+        description: security group for RDS/tower connectivity
+        vpc_id: vpc-
+        rules:
+          - proto: tcp
+            from_port: 5432
+            to_port: 5432
+            group_name: tower-app
+          - proto: tcp
+            from_port: 5432
+            to_port: 5432
+            group_name: Opera
+        region: "{{ region }}"
+      tags: runbyhand
+
+    - name: Opera ELB
+      ec2_elb_lb:
+        name: Opera
+        security_group_ids: ''
+        state: present
+        subnets:
+          - subnet-
+        listeners:
+          - protocol: https
+            load_balancer_port: 443
+            instance_port: 80
+            instance_protocol: http
+            ssl_certificate_id: ""
+          - protocol: http
+            load_balancer_port: 80
+            instance_port: 80
+        health_check:
+          ping_protocol: tcp
+          ping_port: 80
+          response_timeout: 5 # seconds
+          interval: 20 # seconds
+          unhealthy_threshold: 2
+          healthy_threshold: 5
+        region: "{{ region }}"
+
+    - ec2:
+        region: '{{ region }}'
+        key_name:
+        instance_type: t2.medium
+        image: ami-323b195a
+        wait: yes
+        group: Opera-Master
+        exact_count: 1
+        instance_tags:
+          Name: Opera-Master
+          Application: Opera
+          Environment: Production
+        count_tag:
+          Name: Opera-Master
+          Environment: Production
+        vpc_subnet_id: subnet-
+        user_data: "{{ lookup('template', '../templates/opera-master-cloud-config.j2') }}"
+        assign_public_ip: yes

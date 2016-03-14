@@ -1,0 +1,36 @@
+- hosts: localhost
+  connection: local
+  gather_facts: yes
+  vars_files:
+    - vars/ES.yml
+  tasks:
+    - name: VPC SECURITY FOR ELASTICSEARCH
+      ec2_group:
+        name: ES New VPC Group
+        description: ES New VPC Group
+        vpc_id: "{{ vpc_id }}"
+        region: "{{ region }}"
+        rules:
+          - proto: tcp
+            from_port: 8080
+            to_port: 8080
+            cdir_ip: "{{ office_ip }}"
+          - proto: tcp
+            from_port: 22
+            to_port: 22
+            cidr_ip: "{{ office_ip }}"
+          - proto: tcp
+            from_port: 9200
+            to_port: 9200
+            cidr_ip: "{{ vpc_net }}"
+          - proto: tcp
+            from_port: 9300
+            to_port: 9300
+            cidr_ip: "{{ vpc_net }}"
+          - proto: tcp
+            from_port: 443
+            to_port: 443
+          - proto: tcp
+            from_port: 80
+            to_port: 80
+

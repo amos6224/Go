@@ -1,0 +1,43 @@
+#cloud-config
+coreos:
+  units:
+    - name: docker.socket
+      command: start
+      drop-ins:
+        - name: 30-ListenStream.conf
+          content: |
+            [Socket]
+            ListenStream=2375
+    - name: swarm.service
+      command: start
+      runtime: true
+      content: |
+        [Unit]
+        Description=Swarm Manage
+        After=docker.service
+        Requires=docker.service
+
+        [Service]
+        ExecStartPre=-/usr/bin/docker kill swarm
+        ExecStartPre=-/usr/bin/docker rm swarm
+        ExecStartPre=/usr/bin/docker pull swarm
+        ExecStartPre=/usr/bin/docker login -e amos6224@gmail.com -u amos6224 -p uC4MEnPYnQBjWpQUh2wAxE
+        ExecStart=/usr/bin/docker run -d -p 5732:2375 swarm manage consul://16.0.17.94:8500/swarm
+        ExecStop=/usr/bin/docker stop swarm
+
+    - name: cadvisor.service
+      command: start
+      enable: true
+      content: |-
+        [Unit]
+        Description=cAdvisor Service
+        After=docker.service
+        Requires=docker.service
+
+        [Service]
+        Restart=Always
+        ExecStartPre=/usr/bin/docker kill cadvisor
+        ExecStartPre=/usr/bin/docker rm -f cadvisor
+        xecStartPre=/usr/bin/docker pull google/cadvisor
+        ExecStart=/usr/bin/docker run -d --name cadvisor --volume=/var/run:/var/run:rw --volume=/sys:/sys:ro --volume=/var/lib/docker:/var/lib/docker:ro --publish=8080:8080 google/cadvisor --logtostderr --port=8080
+        ExecStop=/usr/bin/docker stop -t 2 cadvisor

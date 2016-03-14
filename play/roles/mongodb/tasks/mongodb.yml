@@ -1,0 +1,6 @@
+---
+- include: install.deb.yml
+
+- include: configure.yml
+
+- include: mms-agent.yml

@@ -1,0 +1,90 @@
+worker_processes  1;
+events {
+  worker_connections  1024;
+}
+http {
+  include     mime.types;
+  default_type  application/octet-stream;
+  sendfile    on;
+  # set client body size to 2M #
+    client_max_body_size 30M;
+ 
+
+  keepalive_timeout  120;
+
+  # Enable Gzip:
+  gzip on;
+  gzip_http_version 1.0;
+  gzip_comp_level 5;
+  gzip_min_length 512;
+  gzip_buffers 4 8k;
+  gzip_proxied any;
+  gzip_types
+    # text/html is always compressed by HttpGzipModule
+    text/css
+    text/javascript
+    text/xml
+    text/plain
+    text/x-component
+    application/javascript
+    application/x-javascript
+    application/json
+    application/xml
+    application/rss+xml
+    font/truetype
+    font/opentype
+    application/vnd.ms-fontobject
+    image/svg+xml;
+
+  # This should be turned on if you are going to have pre-compressed copies (.gz) of
+  # static files available. If not it should be left off as it will cause extra I/O
+  # for the check. It would be better to enable this in a location {} block for
+  # a specific directory:
+  # gzip_static on;
+
+  gzip_disable    "MSIE [1-6]\.";
+  gzip_vary       on;
+
+  client_max_body_size     500M;
+  client_body_buffer_size  128K;
+
+  upstream contentlyapp {
+   server unix:/tmp/unicorn_production.sock fail_timeout=0;
+  }
+  server_tokens off;
+  server {
+    listen 90;
+    server_name "~^(?<name>[^.]+)\.contently\.com$";
+    root /mnt/namely/current/public;
+    access_log  /var/www/contenly/shared/log/nginx_access.log;
+    error_log /var/www/contently/shared/log/nginx_error.log;
+
+    error_page 500 502 503 504 /500.html;
+
+    location /health_check {
+      access_log off;
+      return 200;
+    }
+
+    # Our main location to proxy everything else to the upstream
+    # server, but with the added logic for enforcing HTTPS.
+    location / {
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header Host $http_host;
+      proxy_redirect off;
+      proxy_next_upstream error;
+      proxy_connect_timeout       290;
+      proxy_send_timeout          290;
+      proxy_read_timeout          290;
+      # 2) Any request that did not originally come in to the ELB
+      #    over HTTPS gets redirected.
+      if ($http_x_forwarded_proto != "https") {
+        rewrite ^(.*) https://$name.contently.com$1 permanent;
+      }
+      proxy_pass http://namelyapp;
+      # Add HTTP Strict Transport Security for good measure.
+      add_header Strict-Transport-Security "max-age=31536000; includeSubDomains;";
+    }
+  }
+}

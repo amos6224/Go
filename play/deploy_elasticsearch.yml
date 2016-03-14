@@ -1,0 +1,31 @@
+---
+- name: ES Server
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars_files:
+    - vars/ES.yml
+  tasks:
+    - name: Provision ES Production
+      ec2:
+        region: "{{ region }}"
+        key_name: "{{ keyname }}"
+        group_id: "{{ security_group }}"
+        instance_type: "{{ instance_type }}"
+        image: "{{ image }}"
+        vpc_subnet_id: "{{ subnet_ids }}"
+        wait: yes
+        count: 1
+        instance_tags:
+          Name: ElasticSearch
+          env: QA
+        assign_public_ip: true
+      register: ec2
+    - name: display
+      debug: var=ec2
+    - name: Add new host
+      add_host: hostname={{ item.public_ip }} groupname=Elastic-cluster
+      with_items: ec2.instances
+    - name: wait for ssh
+      wait_for: host={{ item.public_dns_name }} port=22 delay=60 timeout=320 state=started
+      with_items: ec2.instances
